@@ -1,0 +1,54 @@
+name: Build and Publish Sandbox Image
+
+on:
+  push:
+    branches: [release]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set registry variables
+        run: |
+          echo "SANDBOX_IMAGE_REGISTRY=ghcr.io/${{ github.repository_owner }}" >> $GITHUB_ENV
+          echo "SANDBOX_IMAGE_NAME=gemini-cli-sandbox" >> $GITHUB_ENV
+          echo "GEMINI_SANDBOX=docker" >> $GITHUB_ENV
+
+      - name: Build packages
+        run: npm run build:packages
+
+      - name: Prepare CLI package.json
+        run: npm run prepare:cli-packagejson
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build sandbox image
+        run: npm run build:docker
+
+      - name: Push sandbox image
+        run: npm run publish:sandbox
