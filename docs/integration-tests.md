@@ -132,7 +132,7 @@ This structure makes it easy to locate the artifacts for a specific test run, fi
 
 ## Continuous integration
 
-To ensure the integration tests are always run, a GitHub Actions workflow is defined in `.github/workflows/e2e.yml`. This workflow automatically runs the integration tests on every pull request and push to the `main` branch. The tests require a valid `GEMINI_API_KEY` and the workflow skips execution when this variable is not available.
+To ensure the integration tests are always run, a GitHub Actions workflow is defined in `.github/workflows/e2e.yml`. This workflow automatically runs the integration tests on every pull request and push to the `main` branch. The tests require a valid `GEMINI_API_KEY` secret. If you do not want the tests to run (for example in a fork where you may not have an API key), create a repository secret named `E2E_SKIP` set to `true`. The workflow checks these secrets before running and skips execution when `E2E_SKIP` is `true` or when no `GEMINI_API_KEY` is provided.
 
 The workflow runs the tests in different sandboxing environments to ensure Gemini CLI is tested across each:
 
