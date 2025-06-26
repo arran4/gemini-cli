@@ -9,7 +9,7 @@ on:
 
 jobs:
   e2e-test:
-    if: ${{ secrets.GEMINI_API_KEY != '' }}
+    if: ${{ secrets.GEMINI_API_KEY != '' && secrets.E2E_SKIP != 'true' }}
     name: E2E Test - ${{ matrix.sandbox }}
     runs-on: ubuntu-latest
     strategy:
